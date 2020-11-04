@@ -16,11 +16,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Пример, для  n = 15,вывод будет: 1, 2, fizz, 4, buzz, fizz, 7, 8, fizz, buzz, 11, fizz, 13, 14, fizzbuzz.
  * Имеется код
  * class FizzBuzz {
- * public FizzBuzz(int n) { ... }
- * public void fizz(printFizz) { ... }
- * public void buzz(printBuzz) { ... }
- * public void fizzbuzz(printFizzBuzz) { ... }
- * public void number(printNumber) { ... }
+ *      public FizzBuzz(int n) { ... }
+ *      public void fizz(printFizz) { ... }
+ *      public void buzz(printBuzz) { ... }
+ *      public void fizzbuzz(printFizzBuzz) { ... }
+ *      public void number(printNumber) { ... }
  * }
  * Необходимо реализовать многопоточную версию данного класса для 4-х потоков. Один и тот же экземпляр будет передаваться в разные потоки.
  * Поток A вызывает fizz() для проверки деления без остатка на 3 и выводит fizz.
@@ -29,7 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Поток D вызывает number() который выводит только числа.
  */
 public class FizzBuzzTask {
-    volatile int n = 100;
+    volatile int n = 15;
+
     public static void main(String[] args) throws InterruptedException {
         while (true) {
             FizzBuzzTask fizzBuzzTask = new FizzBuzzTask();
@@ -105,14 +106,16 @@ class FizzBuzz {
         semNumber.release();
     }
 
+
     public void buzz(int n) throws InterruptedException {
         semBuzz.acquire();
         if (n % 5 == 0 && !isFizzBuzz.get()) {
             System.out.print("buzz,");
             isBuzz.set(true);
-            semNumber.release();
         }
+        semNumber.release();
     }
+
 
     public void fizzBuzz(int n) throws InterruptedException {
         fizzBuzzSemaphore.acquire();
@@ -124,15 +127,17 @@ class FizzBuzz {
         semFizz.release();
     }
 
+
     public void number(int n) throws InterruptedException {
         semNumber.acquire(2);
         if (!isFizz.get() && !isBuzz.get() && !isFizzBuzz.get()) {
             System.out.print(n + ",");
         }
-        isFizz.set(false);
-        isBuzz.set(false);
-        isFizzBuzz.set(false);
+
         if (list.get(list.size() - 1) != n) {
+            isFizz.set(false);
+            isBuzz.set(false);
+            isFizzBuzz.set(false);
             fizzBuzzSemaphore.release();
         }
     }
